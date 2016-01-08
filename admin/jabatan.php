@@ -35,8 +35,6 @@
 </table>
 
 <?php }else{
-	$db = new Database();
-	$db->connect();
 
 	switch ($_GET['act']) {
 		case 'ubah': ?>

@@ -1,5 +1,5 @@
-<!DOCTYPE html>
-<?php session_start();
+<?php session_start();?><!DOCTYPE html>
+<?php
 include '../_db.php';
 
 if(!isset($_SESSION['level'])){
@@ -35,6 +35,8 @@ $db->connect();
 
     <!-- Custom CSS -->
     <link href="../dist/css/sb-admin-2.css" rel="stylesheet">
+    <link href="../dist/css/nprogress.css" rel="stylesheet">
+    <link href="../dist/css/morris.css" rel="stylesheet">
 
     <!-- Custom Fonts -->
     <link href="../bower_components/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
@@ -45,6 +47,28 @@ $db->connect();
         <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
         <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
+
+    <!-- jQuery -->
+    <script src="../bower_components/jquery/dist/jquery.min.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="../bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+
+    <!-- Metis Menu Plugin JavaScript -->
+    <script src="../bower_components/metisMenu/dist/metisMenu.min.js"></script>
+
+    <!-- DataTables JavaScript -->
+    <script src="../bower_components/datatables/media/js/jquery.dataTables.min.js"></script>
+    <script src="../bower_components/datatables-plugins/integration/bootstrap/3/dataTables.bootstrap.min.js"></script>
+
+    <!-- Custom Theme JavaScript -->
+    <script src="../dist/js/sb-admin-2.js"></script>
+    <script src="../dist/js/nprogress.js"></script>
+    <script src="../dist/js/raphael-min.js"></script>
+    <script src="../dist/js/morris.min.js"></script>
+
+    <!-- Just Number -->
+    <script src="../js/isNumber.js"></script>
 
 </head>
 
@@ -61,14 +85,14 @@ $db->connect();
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a class="navbar-brand" href="index.html"><?=TITLE;?> || <?=strtoupper($_SESSION['username']);?> [<?=$_SESSION['level'];?>]</a>
+                <a class="navbar-brand" href="index.php"><?=TITLE;?></a>
             </div>
             <!-- /.navbar-header -->
 
             <ul class="nav navbar-top-links navbar-right">
                 <li class="dropdown">
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                        <i class="fa fa-user fa-fw"></i> Profil Saya  <i class="fa fa-caret-down"></i>
+                        <i class="fa fa-user fa-fw"></i> <?=strtoupper($_SESSION['username']);?> [<?=$_SESSION['level'];?>]  <i class="fa fa-caret-down"></i>
                     </a>
                     <ul class="dropdown-menu dropdown-user">
                         <li><a href="?p=profil"><i class="fa fa-user fa-fw"></i> Ubah Profil</a>
@@ -107,6 +131,7 @@ $db->connect();
                         }
                     }else{
                     ?>
+                    <?php if($_SESSION['level']=='Admin' or $_SESSION['level']=='Direktur'){ ?>
                     <h1>Admin Panel</h1>
                     <?php
                     $qj = mysql_query("select * from jabatan");
@@ -160,6 +185,11 @@ $db->connect();
                             </a>
                         </div>
                     </div>
+                    <?php
+                    $qj = mysql_query("select id,sum(total) as total from gaji");
+                    $dj = mysql_num_rows($qj);
+                    $ddj = mysql_fetch_array($qj);
+                    ?>
                     <div class="col-lg-4">
                         <div class="panel panel-red">
                             <div class="panel-heading">
@@ -168,12 +198,12 @@ $db->connect();
                                         <i class="fa fa-euro fa-5x"></i>
                                     </div>
                                     <div class="col-xs-9 text-right">
-                                        <div class="huge">0</div>
-                                        <div>Penggajian</div>
+                                        <div class="huge">Penggajian</div>
+                                        <div>Rp.<?=number_format($ddj['total'],0,',','.');?></div>
                                     </div>
                                 </div>
                             </div>
-                            <a href="?p=gaji">
+                            <a href="?p=laporan_gaji">
                                 <div class="panel-footer">
                                     <span class="pull-left">View Details</span>
                                     <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
@@ -182,7 +212,19 @@ $db->connect();
                             </a>
                         </div>
                     </div>
-                    <?php } ?>
+                    <?php } // end of session admin ?>
+
+
+                    <?php if($_SESSION['level']=='Pegawai'){ ?>
+                    <p class="lead"></p>
+                    <p class="lead text-center">Selamat datang di Sistem Informasi Penggajian Karyawan.</p>
+                    <p class="lead page-header text-center">Disini Anda dapat mencetak slip gaji secara mandiri (Online).</p>
+                    <a href="?p=kwitansi" class="btn btn-primary btn-block btn-lg">Cetak Slip Gaji</a>
+                    <?php } // end of session pegawai ?>
+
+
+
+                    <?php } // end of else MENU ?>
                 </div>
                 <!-- /.row -->
             </div>
@@ -193,30 +235,39 @@ $db->connect();
     </div>
     <!-- /#wrapper -->
 
-    <!-- jQuery -->
-    <script src="../bower_components/jquery/dist/jquery.min.js"></script>
-
-    <!-- Bootstrap Core JavaScript -->
-    <script src="../bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
-
-    <!-- Metis Menu Plugin JavaScript -->
-    <script src="../bower_components/metisMenu/dist/metisMenu.min.js"></script>
-
-    <!-- DataTables JavaScript -->
-    <script src="../bower_components/datatables/media/js/jquery.dataTables.min.js"></script>
-    <script src="../bower_components/datatables-plugins/integration/bootstrap/3/dataTables.bootstrap.min.js"></script>
-
-    <!-- Custom Theme JavaScript -->
-    <script src="../dist/js/sb-admin-2.js"></script>
-
-    <!-- Just Number -->
-    <script src="../js/isNumber.js"></script>
-
     <script>
     $(document).ready(function() {
+
+        // jQuery DataTables
         $('#tbl,#tbl2,#tbl3').DataTable({
-                responsive: true
+            responsive: true
         });
+        // end of jQuery DataTables
+
+        // jQuery SelectAll
+        $('#select_all').on('click',function(){
+            if(this.checked){
+                $('.checkbox').each(function(){
+                    this.checked = true;
+                });
+            }else{
+                 $('.checkbox').each(function(){
+                    this.checked = false;
+                });
+            }
+        });        
+        $('.checkbox').on('click',function(){
+            if($('.checkbox:checked').length == $('.checkbox').length){
+                $('#select_all').prop('checked',true);
+            }else{
+                $('#select_all').prop('checked',false);
+            }
+            // cara pemakaian
+            // pada th : <input type="checkbox" id="select_all" />
+            // pada td : <input type="checkbox" class="checkbox" value="1"/>
+        });
+        // end of jQuery SelectAll
+
     });
     </script>
 
